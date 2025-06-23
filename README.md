@@ -53,4 +53,4 @@
 
 ```bash
 git clone https://github.com/fasyuzz/fyp-superheroiklim.git
-cd superheroiklim
+cd fyp-superheroiklim
