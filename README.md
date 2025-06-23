@@ -37,7 +37,7 @@
 - **Database**: SQLite / PostgreSQL (production)
 - **ML Model**: Image classification model using TensorFlow/Keras 
 - **Hosting**: Render / GitHub Pages (static), backend on Render
-- **Media Storage**: Cloudinary (optional), local media by default
+- **Media Storage**: Render Disk
 
 ---
 
@@ -52,5 +52,5 @@
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/fasyuzz/superheroiklim.git
+git clone https://github.com/fasyuzz/fyp-superheroiklim.git
 cd superheroiklim
