@@ -1,0 +1,243 @@
+{% extends 'admin/baseCustom.html' %}
+{% load static %}
+{% block title %}Home | Superhero Iklim{% endblock %}
+
+{% block htitle %}Superhero Iklim{% endblock %}
+{% block content %}
+
+<h1 class="font-semibold text-4xl text-red-900 px-4 lg:px-8 my-4">Welcome — Admin Dashboard</h1>
+
+<div class="container px-4 lg:px-8 py-2 space-y-2">
+  <div class="bg-red-50 border-l-4 border-red-400 text-red-800 p-4 rounded-md shadow-sm text-sm">
+    📊 <strong>How it works :</strong> Track user participation and their submissions, either by themes or challenges. Review our AI model if it make correct prediction or not based on the <strong>Themes</strong> !<br>
+    <i>Want to make it more fun for the students? Start by creating a challenge!</i>  
+  </div>
+</div>
+
+<!-- Analytics Section -->
+
+<div class="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0 mx-4 lg:mx-8 my-2">
+  <div class="w-full lg:w-1/2 flex flex-col items-center justify-center bg-white border hover:border-gray-400 hover:shadow-sm p-4">
+    <p class="font-medium text-sm">Total All Submissions</p>
+    <p class="font-semibold text-3xl" id="submission-count">{{ total_submission_count }}</p>
+  </div>
+  <div class="w-full lg:w-1/2 flex flex-col items-center justify-center bg-white border hover:border-gray-400 hover:shadow-sm p-4">
+    <p class="font-medium text-sm">Total All Users</p>
+    <p class="font-semibold text-3xl" id="user-count">{{ total_user_count }}</p>
+  </div>
+</div>
+
+<div class="flex p-4 overflow-x-auto">
+  <!-- All Submissions Chart -->
+  <div class="bg-white rounded shadow-md w-full md:w-1/2 p-4 m-2 relative">
+    <div class="flex items-center gap-2 mb-2">
+      <i class="fa-solid fa-chart-line text-gray-800"></i>
+      <h2 class="font-semibold text-gray-800">All Submissions (7 days)</h2>
+    </div>
+    
+    <div class="relative w-full h-48">
+      <canvas id="allSubmissions"></canvas>      
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const canvas = document.getElementById('allSubmissions');
+          const ctx = canvas.getContext('2d');
+          
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: {{ chart_labels|safe }},
+              datasets: [{
+                label: 'Submissions',
+                data: {{ chart_data|safe }},
+                borderColor: '#FFB86A', 
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#FFB86A',
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  backgroundColor: '#1f2937',
+                  titleFont: { size: 14 },
+                  bodyFont: { size: 12 },
+                  padding: 10,
+                }
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                  ticks: {
+                    color: '#6b7280', 
+                    family: 'Poppins, sans-serif',
+                    font: { size: 10 }
+                  }
+                },
+                y: {
+                  beginAtZero: true,
+                  grid: { display: false },
+                  ticks: {
+                    color: '#6b7280',
+                    font: { size: 10 },
+                    stepSize: 2
+                  }
+                }
+              }
+            }
+          });
+        });
+      </script>
+    </div>
+  </div>
+
+  <!-- Theme Submissions Chart -->
+  <div class="bg-white rounded shadow-md w-full md:w-1/2 p-4 m-2 relative">
+    <div class="flex items-center gap-2 mb-2">
+      <i class="fa-solid fa-earth-americas text-gray-800"></i>
+      <h2 class="font-semibold text-gray-800">Theme Submissions</h2>
+    </div>
+    <div class="relative w-full h-48">
+      <canvas id="themeSubmissions"></canvas>      
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const canvas = document.getElementById('themeSubmissions');
+          const ctxBar = canvas.getContext('2d');
+
+          new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+              labels: {{ theme_labels|safe }},
+              datasets: [{
+                label: 'Submissions',
+                data: {{ theme_counts|safe }},
+                backgroundColor: {{ theme_colors|safe }},
+                borderRadius: 15,
+                barThickness: 40,
+              }]
+            },
+            options: {
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      return ` ${context.parsed.y} submissions`;
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                  ticks: {
+                    color: '#6b7280',
+                    family: 'Poppins, sans-serif',
+                    font: { size: 10 },
+                  }
+                },
+                y: {
+                  beginAtZero: true,
+                  grid: { display: false },
+                  ticks: {
+                    color: '#6b7280',
+                    font: { size: 10 },
+                    stepSize: 2
+                  }
+                }
+              }
+            }
+          });
+        });
+      </script>
+    </div>
+  </div>
+
+  <!-- Active Users Chart -->
+  <div class="bg-white rounded shadow-md w-full md:w-1/2 p-4 m-2 relative">
+    <div class="flex items-center gap-2 mb-2">
+      <i class="fa-solid fa-user text-gray-800"></i>
+      <h2 class="font-semibold text-gray-800">Active Users (7 days)</h2>
+    </div>
+    <div class="relative w-full h-48">
+    <canvas id="userActivityChart"></canvas>      
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+      const ctxPie = document.getElementById('userActivityChart').getContext('2d');
+      new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+          labels: {{ user_labels|safe }},
+          datasets: [{
+            label: 'Users',
+            data: {{ user_data|safe }},
+            backgroundColor: ['#34d399', '#f87171'],
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#374151',
+                font: { size: 12 }
+              }
+            },
+            tooltip: {
+              backgroundColor: '#1f2937',
+              titleFont: { size: 14 },
+              bodyFont: { size: 12 },
+              padding: 10,
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: ${context.parsed} users`;
+                }
+              }
+            },
+            datalabels: {
+              color: '#fafafa',
+              font: {
+                size: 16,
+                family: 'Poppins, sans-serif',
+                weight: 'bold'
+              },
+              formatter: (value) => `${value} users`
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+            });
+    </script>
+    </div>
+    </div>
+  </div>
+</div>
+
+<hr class="my-6 border-gray-300">
+
+  <div class="flex items-center bg-gradient-to-b from-red-100 to-red-50 rounded-lg shadow-md m-6 px-6 py-4 ">
+    <i class="fa-solid fa-users text-4xl m:4 lg:m-8"></i>
+    <div class="p-6 space-y-4">
+      <h3 class="text-lg font-semibold text-gray-800">Create a Challenge</h3>
+      <p class="text-sm text-gray-600">
+        Set up a challenge and turn small actions into big change — together!
+      </p>
+      <a href="{% url 'create_challenge' %}" class="inline-block mt-4 bg-red-600 text-white px-4 py-2 rounded-2xl hover:bg-red-800 text-sm text-center">
+        Create Challenge
+      </a>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

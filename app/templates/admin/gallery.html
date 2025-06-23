@@ -1,0 +1,93 @@
+{% extends 'admin/baseCustom.html' %}
+{% load static %}
+{% block title %}Gallery | Superhero Iklim{% endblock %}
+{% block htitle %}Gallery{% endblock %}
+{% block content %}
+
+<form method="get" action="{% url 'admin_gallery' %}" class="flex flex-wrap gap-4 mb-6 items-center justify-center">
+  <!-- Search -->
+  <div class="flex items-center border rounded-full px-4 py-2 bg-white shadow">
+    <input type="text" name="q" placeholder="Search..." value="{{ query }}"
+           class="flex-1 outline-none text-sm px-2 py-1" aria-label="Search submissions" />
+    <button type="submit" class="text-red-600 hover:text-red-800">
+      <i class="fas fa-search"></i>
+    </button>
+  </div>
+
+  <!-- Challenge Filter -->
+  <select name="challenge" class="rounded-full px-4 py-2 bg-white shadow text-sm">
+    <option value="">All Challenges</option>
+    {% for challenge in challenges %}
+      <option value="{{ challenge.id }}" {% if challenge.id|stringformat:"s" == selected_challenge %}selected{% endif %}>
+        {{ challenge.title }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <!-- SDG Filter -->
+  <select name="theme" class="rounded-full px-4 py-2 bg-white shadow text-sm">
+    <option value="">All Themes</option>
+    {% for theme in themes %}
+      <option value="{{ theme.id }}" {% if theme.id|stringformat:"s" == selected_theme %}selected{% endif %}>
+        {{ theme.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <!-- Sort Filter -->
+  <select name="sort" class="rounded-full px-4 py-2 bg-white shadow text-sm">
+    <option value="">Sort By</option>
+    <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+    <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest</option>
+  </select>
+
+  <!-- Apply Filters -->
+  <button type="submit"
+    class="bg-red-600 text-white px-4 py-2 rounded-2xl hover:bg-red-700 text-sm shadow font-[Poppins]">
+    Apply Filters
+  </button>
+
+  <!-- Clear Filters -->
+  <a href="{% url 'admin_gallery' %}" class="text-sm text-gray-600 hover:underline ml-2">
+    Clear Filters
+  </a>
+</form>
+
+<!-- Submissions Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  {% for submission in submissions %}
+    <div class="bg-white rounded-2xl shadow hover:shadow-lg transition">
+      <div class="flex items-center p-4">
+        {% if submission.user.custom_avatar %}
+          <img src="{{ submission.user.custom_avatar.url }}" alt="Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-red-400">
+        {% else %}
+          <img src="{% static 'avatars/'|add:submission.user.avatar %}" alt="Profile Avatar" class="w-12 h-12 rounded-full border-2 border-red-400 p-1">
+        {% endif %}
+        <div class="px-2">
+          <h2 class="font-semibold">{{ submission.title }}</h2>
+          <p class="text-xs text-gray-500">@{{ submission.user.username }}</p>
+        </div>
+      </div>
+      <div class="aspect-w-1 aspect-h-1 w-full">
+        <img src="{{ submission.image.url }}" alt="{{ submission.title }}" class="object-cover w-full h-full">
+      </div>      
+      <div class="px-6 py-4">
+        <p class="mt-2 text-sm">{{ submission.caption }}</p>
+        {% if submission.challenge %}
+          <span class="block bg-red-900 text-white text-xs font-semibold px-3 py-1 mt-3 rounded-lg w-fit">
+            {{ submission.challenge.title }}
+          </span>
+        {% else %}
+          <span class="block {{ submission.theme.color }} text-xs font-semibold px-3 py-1 mt-3 rounded-lg w-fit">{{ submission.theme.name }}</span>
+        {% endif %}
+        <p class="text-xs text-gray-400 mt-2">{{ submission.created_at|date:"F j, Y" }}</p>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-span-full text-center text-gray-500 text-sm">
+      No submissions found for the selected filters.
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

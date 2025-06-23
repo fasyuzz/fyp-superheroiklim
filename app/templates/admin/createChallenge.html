@@ -1,0 +1,204 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+  <title>Create Challenge | Superhero Iklim</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    p, label, h2, span, input, textarea, a{
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-red-50 flex flex-col min-h-screen max-w-md mx-auto">
+  <header class="bg-red-100 text-red-800 px-6 py-4 shadow-md">
+      <div class="container mx-auto flex items-center space-x-8">
+          <i class="fa-solid fa-xmark text-2xl cursor-pointer" onclick="window.history.back()"></i>
+          <h2 class="text-lg font-bold">Create Challenge</h2>
+      </div>
+  </header>
+
+  <main class="flex-grow">
+    <div class="bg-white shadow-lg rounded-b-2xl overflow-hidden">
+      <form id="challengeForm" method="POST" enctype="multipart/form-data" class="space-y-5">
+        {% csrf_token %}
+  
+        <!-- Upload Image -->
+        <div class="px-5 pt-2 space-y-2">
+          <label class="block font-semibold text-sm bg-white">Upload Background</label>
+          {{ form.image }}
+          {{ form.image.errors }}
+
+          <!-- Image Preview -->
+          <div id="imagePreview" class="mt-4 hidden">
+            <img id="previewImg" src="#" alt="Preview" class="rounded-lg shadow-md max-h-64 object-contain">
+          </div>
+        </div>
+  
+        <hr class="mx-4 border-gray-300">
+
+        <!-- Title -->
+        <div class="px-5 pt-2 space-y-2">
+          <label class="block font-semibold text-sm">Title</label>
+          {{ form.title }}
+          {{ form.title.errors }}
+        </div>
+
+        <hr class="mx-4 border-gray-300">
+  
+        <!-- Caption -->
+        <div class="px-5 pt-2 space-y-2">
+          <label class="block font-semibold text-sm">Caption</label>
+          {{ form.description }}
+          {{ form.description.errors }}
+        </div>
+
+        <hr class="mx-4 border-gray-300">
+
+        <!-- Start Date -->
+        <div class="px-5 pt-2 space-y-2">
+          <label class="block font-semibold text-sm">Start Date</label>
+          {{ form.start_date }}
+          {{ form.start_date.errors }}
+        </div>
+
+        <hr class="mx-4 border-gray-300">
+
+        <!-- End Date -->
+        <div class="px-5 pt-2 space-y-2">
+          <label class="block font-semibold text-sm">End Date</label>
+          {{ form.end_date }}
+          {{ form.end_date.errors }}
+        </div>
+
+        <hr class="mx-4 border-gray-300">
+
+        <!-- Sustainability Development Goals -->
+        <div class="px-5 pt-2 space-y-2">
+          <label class="block font-semibold text-sm">Sustainability Development Goals</label>
+
+          <div class="flex items-center gap-2">
+            <div id="selected-sdgs" class="flex gap-2 flex-wrap flex-grow">
+              <!-- Selected SDG icons will be injected here -->
+            </div>
+            <button id="toggle-sdg-list" type="button"
+            class="w-10 h-10 rounded-full bg-gray-200 text-gray-700 text-2xl font-bold flex items-center justify-center shadow hover:bg-gray-300">
+            +
+            </button>
+          
+          </div>
+
+          <!-- Hidden SDG list -->
+          <div id="sdg-list" class="grid grid-cols-3 gap-4 mt-4 hidden transition duration-300">
+            {% for sdg in sdg %}
+            <div class="sdg-option flex items-center justify-center cursor-pointer hover:bg-blue-100 transition duration-200">
+            <input type="checkbox" id="sdg_{{ sdg.id }}" name="sdg" value="{{ sdg.id }}" class="hidden">
+            <img src="{% static 'images/sdg_icons/'|add:sdg.code|add:'.png' %}" alt="{{ sdg.name }}" class="w-24 h-24">
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <hr class="mx-4 border-gray-300">
+
+        <!-- Points -->
+        <div class="px-5 pt-2 space-y-2">
+          <label class="block font-semibold text-sm">Points</label>
+          {{ form.points }}
+          {{ form.points.errors }}
+        </div>
+
+        <hr class="mx-4 border-gray-300">
+
+        <!-- Submit -->
+        <div class="px-5 pb-4 pt-2 space-y-2">
+          <button type="submit" class="w-full bg-red-600 text-white text-center font-semibold px-5 py-3 rounded-2xl shadow-md hover:bg-red-700 transition duration-300 font-[Poppins]">
+            Submit
+          </button>
+        </div>
+      </form>
+
+      {% if success %}
+      <!-- Overlay -->
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <!-- Modal Box -->
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center max-w-sm w-full">
+          <h1 class="text-2xl font-bold text-red-700 mb-4">Submitted!</h1>
+          <p class="text-gray-600 mb-6">Your challenge has been created successfully.</p>
+            <a href="{% url 'admin_challenge' %}" class="inline-block bg-red-700 text-white px-5 py-2 rounded-2xl hover:bg-red-800">
+            View Challenge
+            </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    </main>
+    <script>
+        const imageInput = document.querySelector('input[name="image"]');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+    
+        imageInput.addEventListener('change', function(event) {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              previewImg.src = e.target.result;
+              imagePreview.classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+          }
+        });
+      </script>
+
+      
+<script>
+  const sdgList = document.getElementById('sdg-list');
+  const toggleBtn = document.getElementById('toggle-sdg-list');
+  const selectedContainer = document.getElementById('selected-sdgs');
+
+  toggleBtn.addEventListener('click', () => {
+    sdgList.classList.toggle('hidden');
+  });
+
+  document.querySelectorAll('.sdg-option').forEach(option => {
+    option.addEventListener('click', () => {
+      const checkbox = option.querySelector('input[type="checkbox"]');
+      checkbox.checked = !checkbox.checked;
+
+      // Toggle styles for the SDG option
+      option.classList.toggle('bg-blue-100', checkbox.checked);
+      option.classList.toggle('border-blue-500', checkbox.checked);
+      option.classList.toggle('shadow-md', checkbox.checked);
+
+      // Add or remove the SDG from the selected list
+      if (checkbox.checked) {
+        const selectedSDG = document.createElement('div');
+        selectedSDG.className = 'flex items-center space-x-2 bg-blue-100 border border-blue-500 rounded-lg p-2 m-1';
+        selectedSDG.innerHTML = `<img src="${option.querySelector('img').src}" class="w-8 h-8 rounded">`;
+        selectedContainer.appendChild(selectedSDG);
+      } else {
+        const selectedSDGs = Array.from(selectedContainer.children);
+        const toRemove = selectedSDGs.find(sd => sd.querySelector('img').src === option.querySelector('img').src);
+        if (toRemove) {
+          selectedContainer.removeChild(toRemove);
+        }
+      }
+
+      // Make sure the hidden checkbox reflects the selection
+      const hiddenCheckbox = document.getElementById(`sdg_hidden_${checkbox.value}`);
+      hiddenCheckbox.checked = checkbox.checked;
+    });
+  });
+</script>
+
+      
+</body>
+</html>

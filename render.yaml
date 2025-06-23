@@ -1,0 +1,24 @@
+databases:
+  - name: mydb
+    plan: free
+    databaseName: core
+    user: core
+
+services:
+  - type: web
+    plan: free
+    name: core
+    runtime: python
+    buildCommand: './build.sh'
+    startCommand: 'python -m uvicorn core.asgi:application --host 0.0.0.0 --port $PORT'
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: coredb
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: PYTHON_VERSION
+        value: 3.10.0

@@ -1,0 +1,96 @@
+{% extends 'admin/baseCustom.html' %}
+{% load static %}
+{% block title %}Leaderboard | Superhero Iklim{% endblock %}
+{% block htitle %}Leaderboard{% endblock %}
+{% block content %}
+
+<!-- Podium -->
+<div class="flex justify-center items-end gap:5 lg:gap-10 my-10">
+  {% with first=leaderboard.0 second=leaderboard.1 third=leaderboard.2 %}
+    
+    <!-- 2nd Place (left) -->
+    {% if second %}
+    <div class="flex flex-col items-center">
+      <div class="relative w-24 h-24 bg-white rounded-full border-4 border-gray-400 shadow-lg">
+        {% if second.custom_avatar %}
+          <img src="{{ second.custom_avatar.url }}" alt="Avatar" class="w-full h-full rounded-full object-cover">
+        {% else %}
+          <img src="{% static 'avatars/'|add:second.avatar %}" alt="Avatar" class="w-full h-full rounded-full object-cover p-1">
+        {% endif %}        
+        <i class="fa-solid fa-crown text-gray-400 absolute -top-8 left-1/2 -translate-x-1/2 text-3xl"></i>
+      </div>
+      <p class="text-base font-bold mt-2">{{ second.username }}</p>
+      <p class="text-sm text-gray-600">{{ second.total_points }} pts</p>
+      <div class="mt-2 w-20 h-20 bg-gray-400 rounded-t-xl flex justify-center items-center text-white text-xl font-bold">2</div>
+    </div>
+    {% endif %}
+
+    <!-- 1st Place (center) -->
+    {% if first %}
+    <div class="flex flex-col items-center">
+      <div class="relative w-28 h-28 bg-white rounded-full border-4 border-yellow-400 shadow-xl">
+        {% if first.custom_avatar %}
+          <img src="{{ first.custom_avatar.url }}" alt="Avatar" class="w-full h-full rounded-full object-cover">
+        {% else %}
+          <img src="{% static 'avatars/'|add:first.avatar %}" alt="Avatar" class="w-full h-full rounded-full object-cover p-1">
+        {% endif %}
+        <i class="fa-solid fa-crown text-yellow-400 absolute -top-8 left-1/2 -translate-x-1/2 text-3xl"></i>
+      </div>
+      <p class="text-lg font-bold mt-2">{{ first.username }}</p>
+      <p class="text-sm text-gray-600">{{ first.total_points }} pts</p>
+      <div class="mt-2 w-20 h-28 bg-yellow-500 rounded-t-xl flex justify-center items-center text-white text-2xl font-extrabold">1</div>
+    </div>
+    {% endif %}
+
+    <!-- 3rd Place (right) -->
+    {% if third %}
+    <div class="flex flex-col items-center">
+      <div class="relative w-20 h-20 bg-white rounded-full border-4 border-orange-400 shadow-md">
+        {% if third.custom_avatar %}
+          <img src="{{ third.custom_avatar.url }}" alt="Avatar" class="w-full h-full rounded-full object-cover">
+        {% else %}
+          <img src="{% static 'avatars/'|add:third.avatar %}" alt="Avatar" class="w-full h-full rounded-full object-cover p-1">
+        {% endif %} 
+        <i class="fa-solid fa-crown text-orange-400 absolute -top-8 left-1/2 -translate-x-1/2 text-3xl"></i>
+      </div>
+      <p class="text-base font-bold mt-2">{{ third.username }}</p>
+      <p class="text-sm text-gray-600">{{ third.total_points }} pts</p>
+      <div class="mt-2 w-20 h-16 bg-orange-400 rounded-t-xl flex justify-center items-center text-white text-lg font-bold">3</div>
+    </div>
+    {% endif %}
+
+  {% endwith %}
+</div>
+
+<!-- Ranked List -->
+<div class="space-y-4 bg-gradient-to-br from-red-100 to-red-300 shadow-lg rounded-xl p-6 mx-auto max-w-3xl mb-8">
+  {% for user in leaderboard %}
+    <div class="flex justify-between items-center bg-white hover:bg-red-100 transition p-4 rounded-lg shadow-md">
+      <div class="flex items-center gap-4">
+        <span class="text-white bg-red-500 rounded-full w-8 h-8 flex justify-center items-center text-sm font-bold">
+          {{ forloop.counter }}
+        </span>
+        {% if user.custom_avatar %}
+          <img src="{{ user.custom_avatar.url }}" alt="Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-red-400">
+        {% else %}
+          <img src="{% static 'avatars/'|add:user.avatar %}" alt="Avatar" class="w-12 h-12 rounded-full border-2 border-red-400 p-1">
+        {% endif %} 
+        <p class="font-semibold text-gray-800">{{ user.username }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-gray-600">{{ user.total_points }} pts</span>
+          {% if forloop.counter == 1 %}
+            <i class="fa-solid fa-crown text-yellow-500 text-xl"></i>
+          {% elif forloop.counter == 2 %}
+            <i class="fa-solid fa-crown text-gray-400 text-xl"></i>
+          {% elif forloop.counter == 3 %}
+            <i class="fa-solid fa-crown text-orange-700 text-xl"></i>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-center text-gray-500 py-6">No submissions yet.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}

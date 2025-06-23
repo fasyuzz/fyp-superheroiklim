@@ -1,0 +1,153 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+  <title>Login | Superhero Iklim</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    h2, h3, p, a, label {
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-emerald-900 relative min-h-screen">
+  <div class="absolute inset-0 bg-black opacity-60 z-0"></div>
+  <div class="absolute inset-0 bg-cover bg-center z-[-1]" style="background-image: url('{% static 'images/bg.jpg' %}');"></div>
+  <div class="relative flex items-center justify-center min-h-screen z-10">
+  <form method="POST" class="bg-white bg-opacity-90 p-8 rounded-lg shadow-md w-full max-w-md space-y-4">
+    {% csrf_token %}
+    <h1 id="titleWrapper" class="text-3xl font-bold text-center text-teal-800">Sign In</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="text-center text-sm font-medium 
+          {% if message.tags == 'success' %}text-green-600
+          {% elif message.tags == 'error' %}text-red-600
+          {% elif message.tags == 'warning' %}text-yellow-600
+          {% else %}text-gray-600{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <hr class="my-4 border-gray-300">
+
+    <!-- Inside your <form> tag -->
+    <input type="hidden" name="user_type" id="user_type" value="student">
+
+    <div id="roleToggle" class="mx-8 shadow rounded-full h-10 mt-4 flex p-1 relative items-center cursor-pointer">
+        <div class="w-full flex justify-center">
+            <button type="button" class="w-full" onclick="setMode('student')">Student</button>
+        </div>
+        <div class="w-full flex justify-center">
+            <button type="button" class="w-full" onclick="setMode('admin')">Admin</button>
+        </div>
+        <span 
+            id="slider"
+            class="elSwitch bg-teal-600 shadow text-white flex items-center justify-center w-1/2 rounded-full h-8 transition-all top-[4px] absolute left-1">
+            Student
+        </span>
+    </div>
+
+    <!-- Username -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 font-poppins">Username</label>
+      {{ form.username }}
+    </div>
+
+    <!-- Password -->
+    <div class="relative">
+      <label class="block text-sm font-medium text-gray-700">Password</label>
+      <div class="relative">
+        {{ form.password }}
+        <span class="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500" onclick="togglePassword()">
+          <i id="toggleIcon" class="fas fa-eye-slash"></i>
+        </span>
+      </div>
+    </div>
+
+    <!-- Forgot Password -->
+    <div class="text-sm text-right mt-2">
+      <a href="{% url 'forgot_password' %}" id="forgotPassword" class="text-teal-600 hover:underline">
+        Forgot password?
+      </a>
+    </div> 
+    
+    <!-- Submit -->
+    <button id="buttonWrapper" type="submit" class="w-full bg-teal-600 hover:bg-teal-800 text-white py-2 rounded-2xl font-[Poppins]">
+      Login
+    </button>
+
+    <p class="text-sm text-center text-gray-600 mt-2">
+      Don’t have an account?
+      <a id="signupWrapper" href="{% url 'signup' %}" class="text-teal-600 hover:underline">Sign up as Student</a>
+    </p>
+  </form>
+
+  <script>
+    function togglePassword() {
+      const input = document.querySelector('input[name="password"]');
+      const icon = document.getElementById("toggleIcon");
+  
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      }
+    }
+    function setMode(mode) {
+      const titleWrapper = document.getElementById('titleWrapper');
+      const slider = document.getElementById('slider');
+      const buttonWrapper = document.getElementById('buttonWrapper');
+      const userTypeInput = document.getElementById('user_type');
+      const forgotPassword = document.getElementById('forgotPassword');
+
+      if (mode === 'admin') {
+        slider.style.left = '50%'; // slide right
+        titleWrapper.classList.add('text-red-700');
+        titleWrapper.classList.remove('text-teal-600');
+
+        buttonWrapper.classList.add('bg-red-700', 'hover:bg-red-800');
+        buttonWrapper.classList.remove('bg-teal-600', 'hover:bg-teal-800');
+
+        slider.classList.add('bg-red-700');
+        slider.classList.remove('bg-teal-600');
+
+        slider.innerText = 'Admin';
+        userTypeInput.value = 'admin'; 
+
+        forgotPassword.classList.add('text-red-700');
+        forgotPassword.classList.remove('text-teal-600');
+
+      } else {
+        slider.style.left = '4px'; // slide left
+        titleWrapper.classList.add('text-teal-600');
+        titleWrapper.classList.remove('text-red-700');
+
+        buttonWrapper.classList.add('bg-teal-600', 'hover:bg-teal-800');
+        buttonWrapper.classList.remove('bg-red-700', 'hover:bg-red-800');
+
+        slider.classList.add('bg-teal-600');
+        slider.classList.remove('bg-red-700');
+
+        slider.innerText = 'Student';
+        userTypeInput.value = 'student';
+
+        forgotPassword.classList.add('text-teal-600');
+        forgotPassword.classList.remove('text-red-700');
+      }
+    }
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+{% extends 'admin/baseCustom.html' %}
+{% load static %}
+{% block title %}Challenges | Superhero Iklim{% endblock %}
+
+{% block htitle %}Challenges{% endblock %}
+{% block content %}
+<div class="container flex px-4 lg:px-8 py-4 space-y-4">
+  <h1 class="text-2xl font-bold">Ongoing Challenges</h1>
+</div>
+
+<div class="overflow-x-auto whitespace-nowrap px-4 lg:px-8">
+  {% for challenge in ongoing_challenges %}
+    <div class="relative inline-block w-96 h-48 rounded-3xl overflow-hidden mr-4 mb-4 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <img src="{{ challenge.image.url|default:'static/images/default.jpg'}}" alt="{{ challenge.title }}"
+           class="w-full h-full object-cover" />
+      <!-- Overlay -->
+      <div class="absolute inset-0 bg-black bg-opacity-40 p-5 flex flex-col justify-between text-white">
+        <div>
+          <h3 class="text-2xl font-semibold">{{ challenge.title }}</h3>
+          <p class="text-sm">Challenge ends in {{ challenge.days_left }} day{{ challenge.days_left|pluralize }}</p>
+        </div>
+        <a href="{% url 'view_challenge' challenge.id %}"
+          class="self-end bg-red-600 text-white px-6 py-2 rounded-2xl hover:bg-red-800 text-sm">
+          View Challenge
+        </a>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-gray-500">No ongoing challenges.</p>
+  {% endfor %}
+</div>
+
+<hr class="my-6 border-gray-300">
+
+<div class="container flex px-4 lg:px-8 py-4 space-y-4">
+  <h1 class="text-2xl font-bold">Past Challenges</h1>
+</div>
+
+<div class="overflow-x-auto whitespace-nowrap px-4 lg:px-8">
+  {% for challenge in past_challenges %}
+    <div class="relative inline-block w-96 h-48 rounded-3xl overflow-hidden mr-4 mb-4 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      {% if challenge.image %}
+          <img src="{{ challenge.image.url }}" alt="{{ challenge.title }}" class="w-full h-full object-cover">
+      {% else %}
+          <img src="{% static 'images/default.jpg' %}" alt="Default Image" class="w-full h-full object-cover">
+      {% endif %}
+      <!-- Overlay -->
+      <div class="absolute inset-0 bg-black bg-opacity-40 p-5 flex flex-col justify-between text-white">
+        <div>
+          <h3 class="text-2xl font-semibold">{{ challenge.title }}</h3>
+          <p class="text-sm">Challenge has ended</p>
+        </div>
+        <a href="{% url 'view_challenge' challenge.id %}"
+          class="self-end bg-red-600 text-white px-6 py-2 rounded-2xl hover:bg-red-800 text-sm">
+          View Challenge
+        </a>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-gray-500">No past challenges.</p>
+  {% endfor %}
+</div>    
+
+<div class="fixed bottom-6 lg:bottom-12 right-6 lg:right-12 group">
+    <a href="{% url 'create_challenge' %}" class="bg-red-600 text-white w-20 h-20 flex items-center justify-center p-6 rounded-full shadow-lg hover:bg-red-800 transition duration-200"
+    aria-label="Create Challenge">
+        <i class="fas fa-plus text-2xl"></i>
+    </a>
+    <div class="absolute right-20 bottom-1/2 transform translate-y-1/2 opacity-0 group-hover:opacity-100 bg-white text-sm rounded px-2 py-1 shadow-md transition-opacity">
+      Create Challenge
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends 'student/base.html' %}
+{% load static %}
+{% block title %}Home | Superhero Iklim{% endblock %}
+
+{% block htitle %}Superhero Iklim{% endblock %}
+{% block content %}
+
+<h1 class="font-semibold text-4xl text-emerald-800 my-4 px-4 lg:px-8 ">Welcome, {{ user.first_name }} !</h1>
+
+<div class="container px-4 lg:px-8 py-2 space-y-2 mb-2">
+  <div class="bg-emerald-50 border-l-4 border-emerald-400 text-emerald-700 p-4 rounded-md shadow-sm text-sm">
+    🌱 <strong>How it works :</strong> Choose a theme, explore suggested actions, and click <strong>"Log Action"</strong> to upload your photo. Our AI will check if your image matches the theme — don't worry if the predicted theme doesn't match, you’ll still earn points! - as of now :) <br>
+    <i>Pssss, want more points? Check out available ongoing challenges to earn more!</i>
+  </div>
+</div>
+
+
+<!-- Tabs -->
+<div class="overflow-x-auto px-4 lg:px-8 border-b border-gray-300">
+<div class="flex space-x-4 min-w-max">
+  <button class="tab-btn active-tab text-emerald-600 bg-emerald-100 py-2 px-4 border-b-2 border-emerald-600 text-xs" data-tab="commute">COMMUTE</button>
+  <button class="tab-btn text-gray-600 py-2 px-4 border-b-2 border-transparent hover:text-emerald-600 hover:bg-emerald-100 text-xs" data-tab="energy">ENERGY</button>
+  <button class="tab-btn text-gray-600 py-2 px-4 border-b-2 border-transparent hover:text-emerald-600 hover:bg-emerald-100 text-xs" data-tab="plants">PLANTS</button>
+  <button class="tab-btn text-gray-600 py-2 px-4 border-b-2 border-transparent hover:text-emerald-600 hover:bg-emerald-100 text-xs" data-tab="recycle">RECYCLE</button>
+  <button class="tab-btn text-gray-600 py-2 px-4 border-b-2 border-transparent hover:text-emerald-600 hover:bg-emerald-100 text-xs" data-tab="water">WATER</button>
+</div>
+</div>
+
+<!-- Content -->
+<div class="tab-content py-8 px-4 lg:px-8 ">
+{% for theme in themes %}
+<div class="tab-pane space-y-4 {% if theme.slug != 'commute' %}hidden{% endif %}" data-content="{{ theme.slug }}">
+  <h2 class="font-semibold text-2xl">{{ theme.name }}</h2>
+  <p class="text-gray-600 text-sm font-light">{{ theme.description }}</p>
+  <h3 class="pt-4 font-semibold text-sm">Actions</h3>
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+    {% for action in theme.actions.all %}
+      <div class="relative bg-white rounded-lg shadow hover:shadow-2xl transition-shadow duration-300 overflow-hidden">
+        <div class="aspect-w-1 aspect-h-1 w-full">
+          <img src="{{ action.image.url|default:'static/images/default.jpg' }}" 
+              alt="{{ action.title }}" 
+              class="object-cover object-center w-full h-full rounded-lg">
+        </div>
+        
+        <!-- Overlay with bottom-left title -->
+        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end">
+          <h3 class="text-sm text-white font-bold p-3">{{ action.name }}</h3>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-sm text-gray-500">No actions available for this theme.</p>
+    {% endfor %}
+  </div>
+
+  <h3 class="font-semibold text-sm">Sustainability Development Goals</h3>
+  <div class="flex flex-wrap mb-6 gap-2 w-full">
+    {% for sdg in theme.sdg.all %}
+      <img src="{% static 'images/sdg_icons/'|add:sdg.code|add:'.png' %}" class="w-20 h-20">
+    {% endfor %}
+  </div>
+
+  <div class="bg-white border-l-4 border-yellow-500 text-gray-700 p-3 rounded text-sm mt-6">
+  💡 <strong>Tip</strong>: Make sure your image clearly shows the activity. For better results, please upload square image (equal height and width).
+  </div>
+  
+  <a href="{% url 'log_action_theme' theme.slug %}" class="block w-full mt-4 bg-emerald-600 text-white text-center px-4 py-2 rounded-2xl hover:bg-emerald-800 font-semibold font-[Poppins]">
+    + Log Action
+  </a>
+</div>
+{% endfor %}
+</div>
+
+<hr class="my-4 border-gray-300">
+
+<div class="container flex px-4 lg:px-8 py-4 space-y-4 mb-2">
+  <h1 class="text-2xl font-bold">Ongoing Challenges</h1>
+</div>
+
+<div class="overflow-x-auto whitespace-nowrap px-4 lg:px-8 mb-12">
+  {% for challenge in challenges %}
+    <div class="relative inline-block w-96 h-48 rounded-3xl overflow-hidden mr-4 mb-4 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <img src="{{ challenge.image.url|default:'static/images/default.jpg'}}" alt="{{ challenge.title }}"
+           class="w-full h-full object-cover" />
+      <!-- Overlay -->
+      <div class="absolute inset-0 bg-black bg-opacity-40 p-5 flex flex-col justify-between text-white">
+        <div>
+          <h3 class="text-2xl font-semibold">{{ challenge.title }}</h3>
+          <p class="text-sm">Challenge ends in {{ challenge.days_left }} day{{ challenge.days_left|pluralize }}</p>
+        </div>
+        <a href="{% url 'challenge_detail' challenge.id %}"
+           class="self-end bg-emerald-600 text-white px-6 py-2 rounded-2xl hover:bg-emerald-800 text-sm">
+          Join Challenge
+        </a>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-gray-500">No challenges available at the moment.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const target = button.getAttribute('data-tab');
+
+      // Remove active style from all buttons
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active-tab', 'text-emerald-600', 'bg-emerald-100', 'border-emerald-600');
+        btn.classList.add('text-gray-600', 'border-transparent');
+      });
+
+      // Add active styles to clicked button
+      button.classList.add('active-tab', 'text-emerald-600', 'bg-emerald-100', 'border-emerald-600');
+      button.classList.remove('text-gray-600', 'border-transparent');
+
+      // Show matching content and hide others
+      tabPanes.forEach(pane => {
+        if (pane.getAttribute('data-content') === target) {
+          pane.classList.remove('hidden');
+        } else {
+          pane.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>  
+{% endblock %}

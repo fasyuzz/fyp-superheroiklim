@@ -1,0 +1,72 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+  <title>Welcome | Superhero Iklim</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body, h1, h2, h3, h4, p, a {
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-emerald-900 text-gray-800">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between px-6 py-4 bg-white shadow-md">
+    <div class="flex items-center space-x-3">
+      <img src="{% static 'images/logo.png' %}" alt="Logo" class="w-8 h-8 rounded-full">
+      <h2 class="text-2xl text-emerald-800 font-bold hidden sm:block">{% block htitle %}Superhero Iklim{% endblock %}</h2>
+    </div>
+    <nav class="space-x-4">
+      <a href="{% url 'login' %}" class="text-emerald-800 hover:underline">Login</a>
+      <a href="{% url 'signup' %}" class="bg-emerald-700 text-white px-4 lg:px-8 py-2 rounded-2xl hover:bg-emerald-900">Sign Up</a>
+    </nav>
+  </header>
+
+  <!-- Main Section -->
+  <section class="relative flex flex-col-reverse lg:flex-row items-center justify-between px-6 lg:px-20 py-12 bg-cover bg-center" style="background-image: url('{% static 'images/bg.jpg' %}');">
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black to-transparent opacity-80"></div>
+    <!-- Content Wrapper -->
+    <div class="relative z-10 w-full lg:w-1/2 text-center lg:text-left mt-8 lg:mt-24 mb-16">
+      <h2 class="text-4xl font-bold text-white mt-16 mb-4">Be the Climate Hero!</h2>
+      <p class="text-white text-lg mb-8">
+        Small actions lead to big changes. Be part of the climate solution and take action today.
+      </p>
+      <a href="{% url 'login' %}" class="bg-emerald-700 text-white px-6 py-3 rounded-xl hover:bg-emerald-900 transition">Get Started</a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="bg-white py-16 px-6 text-center">
+    <h3 class="text-3xl font-semibold text-emerald-800 mb-12">Features</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="bg-emerald-50 p-6 rounded-xl shadow hover:shadow-md">
+        <h4 class="text-xl font-bold text-emerald-700">Challenges</h4>
+        <p class="text-gray-600 mt-2">Complete climate tasks like recycling, planting trees, and more.</p>
+      </div>
+      <div class="bg-emerald-50 p-6 rounded-xl shadow hover:shadow-md">
+        <h4 class="text-xl font-bold text-emerald-700">Leaderboards</h4>
+        <p class="text-gray-600 mt-2">Climb the ranks and become the top eco-hero in your campus!</p>
+      </div>
+      <div class="bg-emerald-50 p-6 rounded-xl shadow hover:shadow-md">
+        <h4 class="text-xl font-bold text-emerald-700">Communities</h4>
+        <p class="text-gray-600 mt-2">Explore others' posts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-emerald-900 text-white text-center py-5">
+    <p>&copy; 2025 Superhero Iklim</p>
+  </footer>
+
+</body>
+</html>

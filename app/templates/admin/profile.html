@@ -1,0 +1,101 @@
+{% extends 'admin/baseCustom.html' %}
+{% load static %}
+{% block title %}Profile | Superhero Iklim{% endblock %}
+{% block htitle %}Profile{% endblock %}
+{% block content %}
+<div class="flex flex-col items-center py-10">
+  <!-- Profile section -->
+  <div class="relative mb-4">
+    <div class="bg-white rounded-full flex items-center justify-center">
+      {% if user_profile.custom_avatar %}
+        <img src="{{ user_profile.custom_avatar.url }}" alt="Profile Avatar" class="w-32 h-32 object-cover rounded-full border border-4 border-red-600">
+      {% else %}
+        <img src="{% static 'avatars/'|add:user_profile.avatar %}" alt="Profile Avatar" class="w-32 h-32 rounded-full p-2 border border-4 border-red-600">
+      {% endif %}
+    </div>
+    <button onclick="document.getElementById('avatarModal').classList.remove('hidden')" class="absolute bottom-0 right-0 bg-red-600 hover:bg-red-800 rounded-full">
+      <i class="fa-solid fa-pen text-white text-xs flex items-center justify-center p-2"></i>
+    </button>
+  </div>
+
+  <h2 class="text-lg font-semibold">{{ user_profile.first_name }} {{ user_profile.last_name }}</h2>
+  <p class="text-sm text-gray-500">@{{ user_profile.username }}</p>
+
+  <!-- Student View -->
+  <a href="{% url 'student_dashboard' %}" onclick="return confirm('Switch to student dashboard?')"
+    class="bg-white font-semibold text-emerald-600 text-center mt-6 p-4 w-full max-w-md rounded-2xl hover:bg-emerald-800 hover:text-white shadow-lg">
+    Student View
+  </a>
+
+  <!-- Logout Button -->
+  <a href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?')"
+    class="bg-white font-semibold text-red-600 text-center mt-6 p-4 w-full max-w-md rounded-2xl hover:bg-red-800 hover:text-white shadow-lg">
+    Logout
+  </a>
+
+  <!-- Avatar Selection Modal -->
+  <div id="avatarModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl py-4 px-6 w-[80%] max-w-xl shadow-lg relative">
+    <i id="closeModal" class="fa-solid fa-xmark text-2xl cursor-pointer absolute top-4 right-6" onclick="document.getElementById('avatarModal').classList.add('hidden')"></i>
+      <h2 class="text-lg font-semibold mb-4">Choose Your Avatar</h2>
+      <form action="{% url 'change_avatar' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Choose from presets -->
+        <div class="grid grid-cols-3 md:grid-cols-4 gap-4 max-h-64 overflow-y-auto mb-6">
+          {% for filename, label in user_profile.avatar_choices %}
+          <label class="cursor-pointer">
+            <input type="radio" name="avatar" value="{{ filename }}" class="hidden peer" {% if user_profile.avatar == filename %}checked{% endif %}>
+            <img src="{% static 'avatars/'|add:filename %}" alt="{{ label }}"
+                class="w-22 h-22 rounded-full p-2 border-4 border-transparent peer-checked:border-red-600 transition">
+          </label>
+          {% endfor %}
+        </div>
+
+        <!-- Upload custom avatar -->
+        <div class="mb-4">
+          <label class="block font-medium text-sm text-gray-700 mb-2">or Upload Your Own Image</label>
+          <input type="file" name="custom_avatar" id="customAvatarInputs" accept="image/*" class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+        </div>
+
+        <!-- Preview -->
+        <div id="customAvatarPreviewWrappers" class="mt-4 hidden">
+          <div class="rounded-full border-4 border-red-600 inline-block">
+            <img id="customAvatarPreviews" src="#" alt="Preview" class="w-24 h-24 object-cover rounded-full" />
+          </div>
+        </div>
+
+        <button type="submit" class="mt-6 w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">
+          Save Avatar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+  // Avatar upload preview
+  const fileInput = document.getElementById('customAvatarInputs');
+  const previewWrapper = document.getElementById('customAvatarPreviewWrappers');
+  const previewImage = document.getElementById('customAvatarPreviews');
+
+  fileInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        previewImage.src = e.target.result;
+        previewWrapper.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewWrapper.classList.add('hidden');
+    }
+  });
+</script>
+
+{% endblock %}
+  

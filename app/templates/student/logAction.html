@@ -1,0 +1,163 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+  <title>Log Action | Superhero Iklim</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    p, label, h2, span, input, textarea {
+      font-family: 'Poppins', sans-serif;
+    }
+    @keyframes flyIn {
+      0% { transform: translateY(-100px) scale(0.5); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+
+<body class="bg-emerald-50 flex flex-col min-h-screen max-w-md mx-auto">
+  <header class="bg-emerald-100 text-emerald-800 px-6 py-4 shadow-md">
+      <div class="container mx-auto flex items-center space-x-8">
+          <i class="fa-solid fa-xmark text-2xl cursor-pointer" onclick="window.history.back()"></i>
+          <h2 class="text-lg font-bold">Log Action</h2>
+      </div>
+  </header>
+
+  <main class="flex-grow">
+    <div class="bg-white shadow-lg rounded-b-2xl overflow-hidden mb-12">
+      <form id="submissionForm" method="POST" enctype="multipart/form-data" class="space-y-5">
+        {% csrf_token %}
+        <!-- Theme -->
+        {% if theme %}
+        <div class="px-5 pt-2 space-y-2">
+          <span class="font-semibold text-sm">Theme</span>
+          <span class="block {{ theme.color }} text-sm font-semibold px-3 py-2 mt-2 rounded-full w-fit">{{ theme.name }}</span>
+        </div>
+        {% else %}
+        <div class="px-5 pt-2 space-y-2">
+          <span class="font-semibold text-sm">Challenge</span>
+          <span class="block bg-emerald-800 text-sm text-white font-semibold px-3 py-2 mt-2 rounded-full w-fit">{{ challenge.title }}</span>
+        </div>
+        {% endif %}
+
+        <hr class="mx-4 border-gray-300">
+  
+        <!-- Upload Image -->
+        <div class="px-5 pt-2 space-y-2">
+          <label class="block font-semibold text-sm">Upload Image</label>
+          {{ form.image }}
+          {% for error in form.image.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+          {% endfor %}
+
+          <!-- Image Preview -->
+          <div id="imagePreview" class="mt-4 hidden">
+            <img id="previewImg" src="#" alt="Preview" class="rounded-lg shadow-md max-h-64 object-contain">
+          </div>
+        </div>
+  
+        <hr class="mx-4 border-gray-300">
+
+        <!-- Title -->
+        <div class="px-5 pt-2 space-y-2">
+          <label class="block font-semibold text-sm">Title</label>
+          {{ form.title }}
+          {% for error in form.title.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <hr class="mx-4 border-gray-300">
+  
+        <!-- Caption -->
+        <div class="px-5 pt-2 space-y-2">
+          <label class="block font-semibold text-sm">Caption</label>
+          {{ form.caption }}
+          {% for error in form.caption.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <hr class="mx-4 border-gray-300">
+  
+        <input type="hidden" name="challenge" value="{{ challenge.id }}">
+  
+        <!-- Submit -->
+        <div class="px-5 pb-4 pt-2 space-y-2">
+          <button type="submit" class="w-full bg-emerald-600 text-white text-center font-semibold px-5 py-3 rounded-2xl shadow-md hover:bg-emerald-800 transition duration-300 font-[Poppins]">
+            Submit
+          </button>
+        </div>
+      </form>
+
+      {% if success %}
+      <!-- Overlay -->
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <!-- Modal Box -->
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center max-w-sm w-full animate-[flyIn_0.5s_ease-out]">
+          <img src="{% static 'images/superhero.gif' %}" alt="Superhero" class="m-auto w-auto h-auto mb-4">
+          <h2 class="text-2xl font-bold text-emerald-700 mb-2">Well Done!</h2>
+          <p class="text-gray-600 mb-2">You've earned 
+            <span class="text-emerald-700 font-bold text-xl">+
+              {% if challenge %}
+               {{ challenge.points }}  
+              {% else %}
+               50
+              {% endif %}
+            </span> points!
+          </p>
+          <p class="text-gray-500 mb-6">Your action has been logged successfully.</p>
+          
+          {% if theme %}
+            <p class="font-semibold">
+              Confidence score for "<span class="text-emerald-700">{{ theme.name }}</span>" :
+              <span class="text-emerald-700">
+                {{ submission.prediction_theme_confidence }}%
+              </span>
+            </p>
+
+            {% if submission.prediction_theme_confidence >= 50 %}
+              <p class="text-sm text-green-600 font-semibold mt-2 mb-6">
+                This submission likely matches the theme!
+              </p>
+            {% else %}
+              <p class="text-sm text-red-600 font-semibold mt-2 mb-6">
+                This submission may not match the theme.
+              </p>
+            {% endif %}
+          {% endif %}
+          <a href="{% url 'student_dashboard' %}" class="inline-block bg-emerald-600 text-white px-5 py-2 rounded hover:bg-emerald-700">
+            Go to Home
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+  
+  <script>
+    const imageInput = document.querySelector('input[name="image"]');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+
+    imageInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+          imagePreview.classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+
+</body>
+</html>

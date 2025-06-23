@@ -1,0 +1,213 @@
+{% extends 'student/base.html' %}
+{% load static %}
+{% block title %}Profile | Superhero Iklim{% endblock %}
+{% block htitle %}Profile{% endblock %}
+{% block content %}
+<div class="flex flex-col items-center py-10">
+  <!-- Profile section -->
+  <div class="relative mb-4">
+    <div class="bg-white rounded-full flex items-center justify-center">
+      {% if user_profile.custom_avatar %}
+        <img src="{{ user_profile.custom_avatar.url }}" alt="Profile Avatar" class="w-32 h-32 object-cover rounded-full border border-4 border-emerald-600">
+      {% else %}
+        <img src="{% static 'avatars/'|add:user_profile.avatar %}" alt="Profile Avatar" class="w-32 h-32 rounded-full p-2 border border-4 border-emerald-600">
+      {% endif %}
+    </div>
+    <button class="absolute bottom-0 right-0 bg-emerald-600 hover:bg-emerald-800 rounded-full">
+      <i class="fa-solid fa-pen text-white text-xs flex items-center justify-center p-2"></i>
+    </button>
+  </div>
+
+  <h2 class="text-lg font-semibold">{{ user_profile.first_name }} {{ user_profile.last_name }}</h2>
+  <p class="text-sm text-gray-500">@{{ user_profile.username }}</p>
+
+  {% if user.user_type == 'student' %}
+  <!-- Stats -->
+  <div class="flex mt-6 w-full max-w-md rounded-xl bg-emerald-600 text-white divide-x divide-white shadow-lg overflow-hidden">
+    <div class="flex-1 text-center py-4">
+      <i class="fa-solid fa-star m-2"></i>
+      <p class="text-sm">POINTS</p>
+      <p class="text-xl font-bold">{{ user_profile.total_points }}</p>
+    </div>
+    <div class="flex-1 text-center py-4">
+      <i class="fa-solid fa-hand-holding-heart m-2"></i>
+      <p class="text-sm">ACTIONS</p>
+      <p class="text-xl font-bold">{{ user_profile.submission_count }}</p>
+    </div>
+    <div class="flex-1 text-center py-4">
+      <i class="fa-solid fa-ranking-star m-2"></i>
+      <p class="text-sm">LOCAL RANK</p>
+      <p class="text-xl font-bold">
+        {% if user_rank %}
+          #{{ user_rank }}
+        {% else %}
+          -
+        {% endif %}
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Admin View -->
+  {% if user.user_type == 'admin' %}
+  <a href="{% url 'admin_dashboard' %}" onclick="return confirm('Switch to admin dashboard?')"
+    class="bg-white font-semibold text-red-600 text-center mt-6 p-4 w-full max-w-md rounded-2xl hover:bg-red-800 hover:text-white shadow-lg">
+    Admin View
+  </a>
+  {% endif %}
+
+  <!-- History Button -->
+  <button id="toggleHistory" class="bg-white font-semibold text-emerald-600 mt-6 p-4 w-full max-w-md rounded-2xl hover:bg-emerald-800 hover:text-white shadow-lg font-[Poppins]">
+    History
+  </button>
+
+  <!-- Logout Button -->
+  <a href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?')"
+    class="bg-white font-semibold text-red-600 text-center mt-6 p-4 w-full max-w-md rounded-2xl hover:bg-red-800 hover:text-white shadow-lg">
+    Logout
+  </a>
+
+<!-- Submissions (Hidden by default) -->
+<div id="submissionHistory" class="max-w-md my-8 w-full bg-white shadow-lg rounded-lg p-6 hidden">
+  <h2 class="text-2xl font-semibold text-center">Your Submissions</h2>
+  <p class="text-center text-gray-500 my-2">Here are your contributions to the environment!</p>
+  <div class="mb-4 space-y-4 justify-center">
+    {% for submission in user_profile.submissions.all %}
+    <div class="bg-white rounded-2xl shadow hover:shadow-lg transition">
+      <div class="flex items-center p-4">
+        {% if submission.user.custom_avatar %}
+          <img src="{{ submission.user.custom_avatar.url }}" alt="Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-emerald-400">
+        {% else %}
+          <img src="{% static 'avatars/'|add:submission.user.avatar %}" alt="Avatar" class="w-12 h-12 rounded-full border-2 border-emerald-400 p-1">
+        {% endif %}
+        <div class="px-4">
+          <h2 class="text-lg font-semibold">{{ submission.title }}</h2>
+          <p class="text-xs text-gray-500">@{{ submission.user.username }}</p>
+        </div>
+      </div>
+      <div class="aspect-w-1 aspect-h-1 w-full">
+        <img src="{{ submission.image.url }}" alt="{{ submission.title }}" class="object-cover w-full h-full">
+      </div>
+      <div class="px-6 py-4">
+        <p class="mt-2 text-sm">{{ submission.caption }}</p>
+        <p class="text-gray-600 mt-2 text-sm">{{ submission.hashtags }}</p>
+        {% if submission.challenge %}
+          <span class="block bg-emerald-800 text-white text-xs font-semibold px-3 py-1 mt-3 rounded-lg w-fit">
+            {{ submission.challenge.title }}
+          </span>
+        {% else %}
+          <span class="block {{ submission.theme.color }} text-xs font-semibold px-3 py-1 mt-3 rounded-lg w-fit">{{ submission.theme.name }}</span>
+        {% endif %}
+        <p class="text-sm font-semibold mt-2">Points : {{ submission.points }}</p>
+        <p class="text-xs text-gray-400 mt-2">{{ submission.created_at|date:"F j, Y" }}</p>
+        {% if submission.theme %}
+          <p class="font-semibold">
+            Confidence score for "<span class="text-emerald-700">{{ submission.theme.name }}</span>" :
+            <span class="text-emerald-700">
+              {{ submission.prediction_theme_confidence }}%
+            </span>
+          </p>
+
+          {% if submission.prediction_theme_confidence >= 50 %}
+            <p class="text-sm text-green-600 font-semibold mt-2 mb-6">
+              This submission likely matches the theme!
+            </p>
+          {% else %}
+            <p class="text-sm text-red-600 font-semibold mt-2 mb-6">
+              This submission may not match the theme.
+            </p>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-span-full text-center text-gray-500 text-sm">
+      You haven't made any submissions yet.
+    </div>
+  {% endfor %}
+  </div>
+</div>
+
+<!-- Avatar Selection Modal -->
+<div id="avatarModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-lg p-6 w-[90%] max-w-xl shadow-lg relative">
+    <i id="closeModal" class="fa-solid fa-xmark text-2xl cursor-pointer absolute top-4 right-6" onclick="document.getElementById('avatarModal').classList.add('hidden')"></i>
+    <h2 class="text-lg font-semibold mb-4">Choose Your Avatar</h2>
+    <form action="{% url 'change_avatar' %}" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+       <!-- Choose from presets -->
+      <div class="grid grid-cols-3 md:grid-cols-4 gap-4 max-h-64 overflow-y-auto mb-6">
+        {% for filename, label in user_profile.avatar_choices %}
+        <label class="cursor-pointer">
+          <input type="radio" name="avatar" value="{{ filename }}" class="hidden peer" {% if user_profile.avatar == filename %}checked{% endif %}>
+          <img src="{% static 'avatars/'|add:filename %}" alt="{{ label }}"
+               class="w-22 h-22 rounded-full p-2 border-4 border-transparent peer-checked:border-emerald-600 transition">
+        </label>
+        {% endfor %}
+      </div>
+
+      <!-- Upload custom avatar -->
+      <div class="mb-4">
+        <label class="block font-medium text-sm text-gray-700 mb-2">or Upload Your Own Image</label>
+        <input type="file" name="custom_avatar" id="customAvatarInput" accept="image/*" class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+      </div>
+
+      <!-- Preview -->
+      <div id="customAvatarPreviewWrapper" class="mt-4 hidden">
+        <div class="rounded-full border-4 border-emerald-600 inline-block">
+          <img id="customAvatarPreview" src="#" alt="Preview" class="w-24 h-24 object-cover rounded-full" />
+        </div>
+      </div>
+
+      <button type="submit" class="mt-6 w-full bg-emerald-600 text-white py-2 rounded hover:bg-emerald-700">
+        Save Avatar
+      </button>
+    </form>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+  const toggleBtn = document.getElementById('toggleHistory');
+  const historySection = document.getElementById('submissionHistory');
+
+  toggleBtn.addEventListener('click', () => {
+    historySection.classList.toggle('hidden');
+    toggleBtn.textContent = historySection.classList.contains('hidden') ? 'History' : 'Hide History';
+  });
+
+  // Modal logic
+  document.querySelector('.fa-pen').addEventListener('click', () => {
+    document.getElementById('avatarModal').classList.remove('hidden');
+  });
+
+  document.getElementById('closeModal').addEventListener('click', () => {
+    document.getElementById('avatarModal').classList.add('hidden');
+  });
+
+  // Avatar upload preview
+  const fileInput = document.getElementById('customAvatarInput');
+  const previewWrapper = document.getElementById('customAvatarPreviewWrapper');
+  const previewImage = document.getElementById('customAvatarPreview');
+
+  fileInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        previewImage.src = e.target.result;
+        previewWrapper.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewWrapper.classList.add('hidden');
+    }
+  });
+</script>
+
+{% endblock %}
+  

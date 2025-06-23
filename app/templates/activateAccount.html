@@ -1,0 +1,14 @@
+{% autoescape off %}
+<p>Welcome, {{ user }}!</p>
+
+<p>Thank you for registering with us. To complete your registration and activate your account, please click on the link below:</p>
+
+<a href="{{ protocol }}://{{ domain }}{% url 'activate' uidb64=uidb64 token=token %}">
+  >>>Activate your account<<<
+</a>
+
+<p>If you did not register, please ignore this email.</p>
+
+<p>This is an auto-generated message. Please do not reply to this email.</p>
+
+{% endautoescape %}

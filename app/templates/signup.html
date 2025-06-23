@@ -1,0 +1,99 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+  <title>Sign Up | Superhero Iklim </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    h2, h3, p, a, label {
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-emerald-900 relative min-h-screen">
+  <div class="absolute inset-0 bg-black opacity-60 z-0"></div>
+  <div class="absolute inset-0 bg-cover bg-center z-[-1]" style="background-image: url('{% static 'images/bg.jpg' %}');"></div>
+  <div class="relative flex items-center justify-center min-h-screen z-10">
+  <form method="POST" class="bg-white bg-opacity-90 p-8 rounded-lg shadow-md w-full max-w-md space-y-4">
+    {% csrf_token %}
+    <h1 class="text-3xl font-bold text-center text-teal-800">Create an Account</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="text-center text-sm text-red-600 font-medium">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- First Name -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">First Name</label>
+      {{ form.first_name }}
+      {% if form.first_name.errors %}
+        <p class="text-red-500 text-sm mt-1">{{ form.first_name.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Last Name -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Last Name</label>
+      {{ form.last_name }}
+      {% if form.last_name.errors %}
+        <p class="text-red-500 text-sm mt-1">{{ form.last_name.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Email</label>
+      {{ form.email }}
+      {% if form.email.errors %}
+        <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Username -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Username</label>
+      {{ form.username }}
+      {% if form.username.errors %}
+        <p class="text-red-500 text-sm mt-1">{{ form.username.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Password 1 -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Password</label>
+      {{ form.password1 }}
+      {% if form.password1.errors %}
+        <p class="text-red-500 text-sm mt-1">{{ form.password1.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Password 2 -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+      {{ form.password2 }}
+      {% if form.password2.errors %}
+        <p class="text-red-500 text-sm mt-1">{{ form.password2.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="w-full bg-teal-600 text-white py-2 rounded-2xl hover:bg-teal-800 font-[Poppins] transition duration-300">
+      Sign Up
+    </button>
+
+    <p class="text-sm text-center text-gray-600 mt-2">
+        Already have an account?
+        <a href="{% url 'login' %}" class="text-teal-600 hover:underline">Log in</a>
+    </p>
+  </form>
+</body>
+</html>

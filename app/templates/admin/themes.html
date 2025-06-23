@@ -1,0 +1,161 @@
+{% extends 'admin/baseCustom.html' %}
+{% load static %}
+{% block title %}Themes | Superhero Iklim{% endblock %}
+
+{% block htitle %}Themes{% endblock %}
+{% block content %}
+
+<!-- Tabs -->
+<div class="overflow-x-auto px-4 lg:px-8 border-b border-gray-300">
+<div class="flex space-x-4 min-w-max">
+  <button class="tab-btn active-tab text-red-600 bg-red-100 py-2 px-4 border-b-2 border-red-600 text-xs" data-tab="commute">COMMUTE</button>
+  <button class="tab-btn text-gray-600 py-2 px-4 border-b-2 border-transparent hover:text-red-600 hover:bg-red-100 text-xs" data-tab="energy">ENERGY</button>
+  <button class="tab-btn text-gray-600 py-2 px-4 border-b-2 border-transparent hover:text-red-600 hover:bg-red-100 text-xs" data-tab="plants">PLANTS</button>
+  <button class="tab-btn text-gray-600 py-2 px-4 border-b-2 border-transparent hover:text-red-600 hover:bg-red-100 text-xs" data-tab="recycle">RECYCLE</button>
+  <button class="tab-btn text-gray-600 py-2 px-4 border-b-2 border-transparent hover:text-red-600 hover:bg-red-100 text-xs" data-tab="water">WATER</button>
+</div>
+</div>
+
+<!-- Content -->
+<div class="tab-content py-8 px-4 lg:px-8 ">
+{% for theme in themes %}
+<div class="tab-pane space-y-4 {% if theme.slug != 'commute' %}hidden{% endif %}" data-content="{{ theme.slug }}">
+  <h2 class="font-semibold text-2xl">{{ theme.name }}</h2>
+  <p class="text-gray-600 text-sm font-light">{{ theme.description }}</p>
+  <h3 class="pt-4 font-semibold text-sm">Actions</h3>
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+    {% for action in theme.actions.all %}
+      <div class="relative bg-white rounded-lg shadow hover:shadow-2xl transition-shadow duration-300 overflow-hidden">
+        <div class="aspect-w-1 aspect-h-1 w-full">
+          <img src="{{ action.image.url|default:'static/images/default.jpg' }}" 
+              alt="{{ action.title }}" 
+              class="object-cover object-center w-full h-full rounded-lg">
+        </div>
+        
+        <!-- Overlay with bottom-left title -->
+        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end">
+          <h3 class="text-sm text-white font-bold p-3">{{ action.name }}</h3>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-sm text-gray-500">No actions available for this theme.</p>
+    {% endfor %}
+  </div>
+
+
+  <h3 class="font-semibold text-sm">Sustainability Development Goals</h3>
+  <div class="flex flex-wrap mb-6 gap-2 w-full">
+    {% for sdg in theme.sdg.all %}
+      <img src="{% static 'images/sdg_icons/'|add:sdg.code|add:'.png' %}" class="w-20 h-20">
+    {% endfor %}
+  </div>
+  
+  <p class="block w-full mt-4 bg-red-600 text-white text-center px-4 py-2 rounded-2xl opacity-50">
+    + Log Action
+  </p>
+
+  <hr class="my-6 border-gray-300 ">
+
+  <h3 class="font-semibold text-sm">Analytics</h3>
+
+  <div class="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0">
+    <div class="w-full lg:w-1/2 flex flex-col items-center justify-center bg-white border hover:border-gray-400 hover:shadow-sm p-4">
+      <p class="font-medium text-sm">Total Submissions</p>
+      <p class="font-semibold text-2xl">{{ theme.submission_count }}</p>
+    </div>
+    <div class="w-full lg:w-1/2 flex flex-col items-center justify-center bg-white border hover:border-gray-400 hover:shadow-sm p-4">
+      <p class="font-medium text-sm">Total Participants</p>
+      <p class="font-semibold text-2xl">{{ theme.participant_count }}</p>
+    </div>
+  </div>
+
+  <hr class="my-6 border-gray-300 ">
+
+  <h3 class="font-semibold text-sm">Submissions</h3>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+    {% for submission in submissions %}
+      {% if submission.theme.slug == theme.slug %}
+      <div class="bg-white rounded-2xl shadow hover:shadow-lg transition border">
+        <div class="flex p-4">
+            <img src="{% static 'avatars/'|add:submission.user.avatar %}" alt="Profile Avatar" class="w-12 h-12 rounded-full border p-2">
+            <div class="px-4">
+                <h2 class="text-lg font-semibold">{{ submission.title }}</h2>
+                <p class="text-xs text-gray-500">@{{ submission.user.username }}</p>
+            </div>
+        </div>
+        <div class="aspect-w-1 aspect-h-1 w-full">
+          <img src="{{ submission.image.url }}" alt="{{ submission.title }}" class="object-cover w-full h-full">
+        </div>   
+        <div class="px-6 py-4">
+            <p class="mt-2 text-sm">{{ submission.caption }}</p>
+            <p class="text-gray-600 mt-2 text-sm">{{ submission.hashtags }}</p>
+            {% if submission.challenge %}
+            <span class="block bg-emerald-100 text-emerald-600 text-xs font-semibold px-3 py-1 mt-3 rounded-lg w-fit">
+                {{ submission.challenge.title }}
+            </span>
+            {% else %}
+            <span class="block {{ submission.theme.color }} text-xs font-semibold px-3 py-1 mt-3 rounded-lg w-fit">{{ submission.theme.name }}</span>
+            {% endif %}                        
+            <p class="text-xs text-gray-400 mt-2">{{ submission.created_at|date:"F j, Y" }}</p>
+            {% if theme %}
+              <p class="font-semibold">
+                Confidence score for "<span class="text-emerald-700">{{ theme.name }}</span>" :
+                <span class="text-emerald-700">
+                  {{ submission.prediction_theme_confidence }}%
+                </span>
+              </p>
+
+              {% if submission.prediction_theme_confidence >= 50 %}
+                <p class="text-sm text-green-600 font-semibold mt-2 mb-6">
+                  This submission likely matches the theme!
+                </p>
+              {% else %}
+                <p class="text-sm text-red-600 font-semibold mt-2 mb-6">
+                  This submission may not match the theme.
+                </p>
+              {% endif %}
+            {% endif %}
+        </div>
+    </div>
+      {% endif %}
+    {% empty %}
+      <p class="text-sm text-gray-500">No submissions for this theme yet.</p>
+    {% endfor %}
+   </div>
+</div>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const target = button.getAttribute('data-tab');
+
+      // Remove active style from all buttons
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active-tab', 'text-red-600', 'bg-red-100', 'border-red-600');
+        btn.classList.add('text-gray-600', 'border-transparent');
+      });
+
+      // Add active styles to clicked button
+      button.classList.add('active-tab', 'text-red-600', 'bg-red-100', 'border-red-600');
+      button.classList.remove('text-gray-600', 'border-transparent');
+
+      // Show matching content and hide others
+      tabPanes.forEach(pane => {
+        if (pane.getAttribute('data-content') === target) {
+          pane.classList.remove('hidden');
+        } else {
+          pane.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>  
+{% endblock %}
